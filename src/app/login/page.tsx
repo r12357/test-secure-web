@@ -44,8 +44,8 @@ export default function LoginPage() {
       console.log("ログイン成功！");
       window.location.href = '/articles';
 
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error : any) {
+      setError(error.message);
     }
   };
 
@@ -58,8 +58,6 @@ export default function LoginPage() {
           <label className="block mb-1 font-medium">メールアドレス</label>
           <input
             type="email"
-            name="username"
-            autoComplete="username"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -70,8 +68,6 @@ export default function LoginPage() {
           <label className="block mb-1 font-medium">パスワード</label>
           <input
             type="password"
-            name="password"
-            autoComplete="current-password"
             className="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

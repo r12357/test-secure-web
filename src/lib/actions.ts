@@ -17,7 +17,7 @@ const ArticleSchema = z.object({
 
 export async function createOrUpdateArticle(
   articleId: string | null,
-  prevState: any,
+  _prevState: any,
   formData: FormData
 ) {
   const session = await getSession();
@@ -103,7 +103,7 @@ export async function deleteArticle(articleId: string) {
     revalidatePath('/articles');
     return { success: true };
 
-  } catch (error: any) {
+  } catch (error: Error | any) {
     console.error('削除に失敗しました:', error);
     return { error: error.message || 'サーバーエラーが発生しました。' };
   }
@@ -144,8 +144,8 @@ export async function logout() {
  */
 export async function generateMfaSecret(
   // 戻り値の型と合わせるため、プロパティをオプショナルにする
-  prevState: { error?: string; qrCodeUrl?: string },
-  formData: FormData // formDataは使いませんが、型を合わせるために必要
+  _prevState: { error?: string; qrCodeUrl?: string },
+  _formData: FormData // formDataは使いませんが、型を合わせるために必要
 ): Promise<{ error?: string; qrCodeUrl?: string }> { // 戻り値の型も修正
   const session = await getSession();
   if (!session) {

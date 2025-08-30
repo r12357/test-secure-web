@@ -7,7 +7,6 @@ const JWT_ACCESS_SECRET = new TextEncoder().encode(process.env.JWT_ACCESS_SECRET
 const JWT_REFRESH_SECRET = new TextEncoder().encode(process.env.JWT_REFRESH_SECRET);
 const JWT_MFA_SECRET = new TextEncoder().encode(process.env.JWT_MFA_SECRET);
 
-console.log('🔑 JWT_MFA_SECRET from .env.local:', process.env.JWT_MFA_SECRET);
 
 
 // JWTの有効期限

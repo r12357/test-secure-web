@@ -10,7 +10,7 @@ const LoginSchema = z.object({
   password: z.string().min(1, { message: 'パスワードを入力してください。' }),
 });
 
-const MAX_LOGIN_ATTEMPTS = 5;
+// const MAX_LOGIN_ATTEMPTS = 5;
 
 export async function POST(request: Request) {
   try {
