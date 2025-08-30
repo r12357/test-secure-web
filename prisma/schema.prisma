@@ -1,0 +1,150 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+model User {
+  id                 String    @id @default(cuid())
+  email              String    @unique
+  passwordHash       String
+  name               String?
+  isLocked           Boolean   @default(false)
+  failedLoginCount   Int       @default(0)
+  mfaEnabled         Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  articles           Article[] // ユーザーが作成した記事
+  userRoles          UserRole[]
+  webAuthnCredentials WebAuthnCredential[]
+  totpSecrets        TOTPSecret[]
+  loginAttempts      LoginAttempt[]
+  refreshTokens      RefreshToken[]
+
+  @@map("users")
+}
+
+// 追加: Articleモデル
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  authorId  String
+
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@map("articles")
+}
+
+model Role {
+  id          String @id @default(cuid())
+  name        String @unique // "ADMIN", "USER", etc.
+  description String?
+
+  // Relations
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String @id @default(cuid())
+  key         String @unique // "article:read", "article:write", "admin:access", etc.
+  description String?
+
+  // Relations
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  userId String
+  roleId String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+
+  role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
+}
+
+model WebAuthnCredential {
+  id           String   @id @default(cuid())
+  userId       String
+  credentialId String   @unique // WebAuthn credential ID (base64url encoded)
+  publicKey    Bytes    // Public key for verification
+  counter      BigInt   @default(0) // Signature counter
+  deviceType   String   @default("unknown") // "platform", "cross-platform", "unknown"
+  name         String?  // User-friendly name for the credential
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("webauthn_credentials")
+}
+
+model TOTPSecret {
+  id        String    @id @default(cuid())
+  userId    String
+  secret    String    // Base32 encoded secret (should be encrypted in production)
+  createdAt DateTime  @default(now())
+  revokedAt DateTime? // When the secret was revoked
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("totp_secrets")
+}
+
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  userId     String?  // Null if login failed (user not found)
+  emailTried String
+  ip         String
+  userAgent  String?
+  success    Boolean
+  method     String   @default("password") // "password", "totp", "webauthn"
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("login_attempts")
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  jti       String   @unique // JWT ID for tracking
+  revoked   Boolean  @default(false)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
