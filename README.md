@@ -44,6 +44,5 @@ ADMINとしてログインしているとき<br>
 ![TOTP](/picture/test-test.png)
 
 MFAを有効化したときのログイン動作<br>
-<div>
-<iframe width="600" height="400" src="https://youtu.be/0xiLRAZpCdw"></iframe>
-</div>
+https://youtu.be/0xiLRAZpCdw
+
