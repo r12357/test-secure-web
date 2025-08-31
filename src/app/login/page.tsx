@@ -20,23 +20,19 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
+      
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data.error || 'ログインに失敗しました。');
       }
-
-      const data = await res.json();
       
       if (data.mfaRequired) {
         const token = data.mfaToken;
-        console.log('Login successful, MFA required. Token received:', token);
-        
         if (token) {
-          // sessionStorageにトークンを保存
           sessionStorage.setItem('mfa_token', token);
           window.location.href = `/mfa/verify`;
         } else {
-          setError('MFAトークンを生成できませんでした。もう一度お試しください。');
+          setError('MFAトークンを生成できませんでした。');
         }
         return;
       }
@@ -44,8 +40,8 @@ export default function LoginPage() {
       console.log("ログイン成功！");
       window.location.href = '/articles';
 
-    } catch (error : any) {
-      setError(error.message);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
